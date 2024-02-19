@@ -5,17 +5,43 @@ import numpy as np
 
 
 class Pareto:
-    def __init__(self, item: list, frequencia: list) -> None:
+    """
+    Cria um diagrama de Pareto a partir de dados de itens e frequências.
+
+    Args:
+        item (list): Lista de itens.
+        frequencia (list): Lista de frequências correspondentes aos itens.
+        label (str, opcional): Rótulo para o eixo x do gráfico. Padrão: "itens".
+
+    Retorna:
+        Pareto: Objeto Pareto contendo os dados e métodos para gerar o diagrama.
+    """
+
+    def __init__(
+        self, item: list, frequencia: list, label: str = 'items'
+    ) -> None:
         self.item = item
         self.frequencia = frequencia
+        self.label = label
 
     def __repr__(self) -> str:
-        return f'Pareto(items={self.item}, frequencies={self.frequencia})'
+        """
+        Retorna uma representação textual do objeto Pareto.
+
+        Retorna:
+            str: Representação textual do objeto.
+        """
+        return f'Pareto(items={self.item}, frequencies={self.frequencia}, label={self.label})'
 
     def tabela(self) -> pd.DataFrame:
+        """
+        Cria uma tabela a partir dos dados de itens e frequências.
 
+        Retorna:
+            pd.DataFrame: Tabela contendo os itens, frequências, percentual e percentual acumulado.
+        """
         data = pd.DataFrame(
-            {'items': self.item, 'frequencia': self.frequencia}
+            {self.label: self.item, 'frequencia': self.frequencia}
         )
 
         data.sort_values('frequencia', ascending=False, inplace=True)
@@ -24,33 +50,62 @@ class Pareto:
         return data
 
     def Percentual(self) -> list:
+        """
+        Retorna uma lista com os percentuais de cada item.
+
+        Retorna:
+            list: Lista contendo os percentuais de cada item.
+        """
         return list(self.tabela()['precentual'])
 
     def Percentual_Acumulado(self) -> list:
+        """
+        Retorna uma lista com os percentuais acumulados de cada item.
+
+        Retorna:
+            list: Lista contendo os percentuais acumulados de cada item.
+        """
         return list(self.tabela()['precentual_cum'])
 
-    def title_Grafico(self, title) -> str:
+    def get_text(self, title) -> str:
+        """
+        Gera o nome do arquivo de imagem para o diagrama.
+
+        Args:
+            title (str): Título do diagrama.
+
+        Retorna:
+            str: Nome do arquivo de imagem.
+        """
         title = title.replace(' ', '_')
         return f'{title}.png'
 
     def plot(
         self,
-        title: str = 'Grafico pareto',
+        title: str = 'Diagrama de Pareto',
         figsize: tuple = (12, 6),
         save: bool = False,
     ) -> None:
+        """
+        Gera e exibe um diagrama de Pareto.
+
+        Args:
+            title (str, opcional): Título do diagrama. Padrão: "Diagrama de Pareto".
+            figsize (tuple, opcional): Tamanho da figura em polegadas. Padrão: (12, 6).
+            save (bool, opcional): Indica se o diagrama deve ser salvo em um arquivo. Padrão: False.
+        """
 
         data = self.tabela()
 
         fig, ax1 = plt.subplots(figsize=figsize)
 
-        sns.barplot(data=data, x='items', y='frequencia', ax=ax1)
+        sns.barplot(data=data, x=self.label, y='frequencia', ax=ax1)
 
         ax2 = ax1.twinx()
 
         sns.lineplot(
             data=data,
-            x='items',
+            x=self.label,
             y='precentual_cum',
             color='tomato',
             marker='o',
@@ -67,7 +122,7 @@ class Pareto:
 
         if save:
             plt.savefig(
-                self.title_Grafico(title=title),
+                self.get_text(title=title),
                 format='png',
                 dpi=500,
                 bbox_inches='tight',
