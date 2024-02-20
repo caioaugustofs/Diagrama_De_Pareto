@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -40,8 +42,11 @@ class Pareto:
         Retorna:
             pd.DataFrame: Tabela contendo os itens, frequências, percentual e percentual acumulado.
         """
+
+        label = self.get_text(text=self.label)
+
         data = pd.DataFrame(
-            {self.label: self.item, 'frequencia': self.frequencia}
+            {label: self.item, 'frequencia': self.frequencia}
         )
 
         data.sort_values('frequencia', ascending=False, inplace=True)
@@ -67,23 +72,39 @@ class Pareto:
         """
         return list(self.tabela()['precentual_cum'])
 
-    def get_text(self, title) -> str:
+    def get_text(self, text) -> str:
         """
         Gera o nome do arquivo de imagem para o diagrama.
 
         Args:
-            title (str): Título do diagrama.
+            text (str): Título da tabela.
 
         Retorna:
             str: Nome do arquivo de imagem.
         """
-        title = title.replace(' ', '_')
-        return f'{title}.png'
+        return text.replace(' ', '_')
+
+
+    
+    def title_graph(self, text) -> str:
+        """
+        Gera o nome do arquivo de imagem para o diagrama.
+
+        Args:
+            text (str): Título gráfico do diagrama.
+
+        Retorna:
+            str: Nome do arquivo de imagem.
+        """
+        text = text.replace(' ', '_')
+        return f'{text}.png'
 
     def plot(
         self,
         title: str = 'Diagrama de Pareto',
         figsize: tuple = (12, 6),
+        xlabel:str = None,
+        hline:bool =False,
         save: bool = False,
     ) -> None:
         """
@@ -92,20 +113,23 @@ class Pareto:
         Args:
             title (str, opcional): Título do diagrama. Padrão: "Diagrama de Pareto".
             figsize (tuple, opcional): Tamanho da figura em polegadas. Padrão: (12, 6).
+            hline (bool) Linha dos 80 procentos Padrão:False,
+            xlabel (str) Texto do exio x do gráfico Padrão: None
             save (bool, opcional): Indica se o diagrama deve ser salvo em um arquivo. Padrão: False.
         """
 
         data = self.tabela()
+        xlabel_ = self.get_text(self.label)
 
         fig, ax1 = plt.subplots(figsize=figsize)
 
-        sns.barplot(data=data, x=self.label, y='frequencia', ax=ax1)
+        sns.barplot(data=data, x=xlabel_, y='frequencia', ax=ax1)
 
         ax2 = ax1.twinx()
 
         sns.lineplot(
             data=data,
-            x=self.label,
+            x=xlabel_,
             y='precentual_cum',
             color='tomato',
             marker='o',
@@ -113,6 +137,7 @@ class Pareto:
             ax=ax2,
         )
         ax1.set_ylabel('Frequência')
+        
         ax2.set_ylabel('Percentual acumulado')
         plt.title(title.upper())
 
@@ -120,12 +145,22 @@ class Pareto:
 
         [tick.set_rotation(45) for tick in ax1.get_xticklabels()]
 
+        if  not xlabel: 
+            ax1.set_xlabel(self.label)
+        else:
+             ax1.set_xlabel(xlabel)
+
+        if hline:
+            plt.axhline(0.8, c='k', ls='-.', linewidth=1.5)
+
         if save:
             plt.savefig(
-                self.get_text(title=title),
+                self.title_graph(text=title),
                 format='png',
                 dpi=500,
                 bbox_inches='tight',
             )
 
-        plt.show()
+
+
+        return plt.show()
