@@ -2,7 +2,6 @@
 
 from pareto import Pareto
 
-
 item = ['A', 'B', 'C', 'D', 'E', 'F']
 frequencia = [55, 38, 22, 8, 7, 6]
 label = 'Erros por funcao'
@@ -20,6 +19,4 @@ print('\n')
 print(tabela)
 print('\n')
 
-prt.plot(save=True,
-         title="Diagrama de Pareto - Erros por função", 
-         hline=True)
+prt.plot(save=True, title='Diagrama de Pareto - Erros por função', hline=True)

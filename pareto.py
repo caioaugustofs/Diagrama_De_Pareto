@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
+import pandas as pd
+import seaborn as sns
 
 
 class Pareto:
@@ -26,6 +26,7 @@ class Pareto:
         self.frequencia = frequencia
         self.label = label
 
+
     def __repr__(self) -> str:
         """
         Retorna uma representação textual do objeto Pareto.
@@ -45,9 +46,7 @@ class Pareto:
 
         label = self.get_text(text=self.label)
 
-        data = pd.DataFrame(
-            {label: self.item, 'frequencia': self.frequencia}
-        )
+        data = pd.DataFrame({label: self.item, 'frequencia': self.frequencia})
 
         data.sort_values('frequencia', ascending=False, inplace=True)
         data['precentual'] = data['frequencia'] / np.sum(data['frequencia'])
@@ -84,8 +83,6 @@ class Pareto:
         """
         return text.replace(' ', '_')
 
-
-    
     def title_graph(self, text) -> str:
         """
         Gera o nome do arquivo de imagem para o diagrama.
@@ -103,8 +100,8 @@ class Pareto:
         self,
         title: str = 'Diagrama de Pareto',
         figsize: tuple = (12, 6),
-        xlabel:str = None,
-        hline:bool =False,
+        xlabel: str = None,
+        hline: bool = False,
         save: bool = False,
     ) -> None:
         """
@@ -137,7 +134,7 @@ class Pareto:
             ax=ax2,
         )
         ax1.set_ylabel('Frequência')
-        
+
         ax2.set_ylabel('Percentual acumulado')
         plt.title(title.upper())
 
@@ -145,10 +142,10 @@ class Pareto:
 
         [tick.set_rotation(45) for tick in ax1.get_xticklabels()]
 
-        if  not xlabel: 
+        if not xlabel:
             ax1.set_xlabel(self.label)
         else:
-             ax1.set_xlabel(xlabel)
+            ax1.set_xlabel(xlabel)
 
         if hline:
             plt.axhline(0.8, c='k', ls='-.', linewidth=1.5)
@@ -160,7 +157,5 @@ class Pareto:
                 dpi=500,
                 bbox_inches='tight',
             )
-
-
 
         return plt.show()
