@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 
 class Pareto:
@@ -19,13 +19,11 @@ class Pareto:
         Pareto: Objeto Pareto contendo os dados e métodos para gerar o diagrama.
     """
 
-    def __init__(
-        self, item: list, frequencia: list, label: str = 'items'
-    ) -> None:
+    def __init__(self, item: list, frequencia: list, label: str = 'items') -> None:
         self.item = item
         self.frequencia = frequencia
         self.label = label
-
+        self._tabela = None  # Cache para a tabela
 
     def __repr__(self) -> str:
         """
@@ -36,6 +34,7 @@ class Pareto:
         """
         return f'Pareto(items={self.item}, frequencies={self.frequencia}, label={self.label})'
 
+
     def tabela(self) -> pd.DataFrame:
         """
         Cria uma tabela a partir dos dados de itens e frequências.
@@ -43,33 +42,41 @@ class Pareto:
         Retorna:
             pd.DataFrame: Tabela contendo os itens, frequências, percentual e percentual acumulado.
         """
+        if self._tabela is not None:
+            return self._tabela
 
         label = self.get_text(text=self.label)
 
-        data = pd.DataFrame({label: self.item, 'frequencia': self.frequencia})
+        data = pd.DataFrame(
+            {label: self.item, 'frequencia': self.frequencia}
+        )
 
         data.sort_values('frequencia', ascending=False, inplace=True)
-        data['precentual'] = data['frequencia'] / np.sum(data['frequencia'])
-        data['precentual_cum'] = np.cumsum(data['precentual'])
+        data['percentual'] = data['frequencia'] / np.sum(data['frequencia'])
+        data['percentual_cum'] = np.cumsum(data['percentual'])
+        
+        self._tabela = data
         return data
 
-    def Percentual(self) -> list:
+
+    def percentual(self) -> list:
         """
         Retorna uma lista com os percentuais de cada item.
 
         Retorna:
             list: Lista contendo os percentuais de cada item.
         """
-        return list(self.tabela()['precentual'])
+        return list(self.tabela()['percentual'])
 
-    def Percentual_Acumulado(self) -> list:
+    def percentual_acumulado(self) -> list:
         """
         Retorna uma lista com os percentuais acumulados de cada item.
 
         Retorna:
             list: Lista contendo os percentuais acumulados de cada item.
         """
-        return list(self.tabela()['precentual_cum'])
+        return list(self.tabela()['percentual_cum'])
+
 
     def get_text(self, text) -> str:
         """
@@ -82,6 +89,7 @@ class Pareto:
             str: Nome do arquivo de imagem.
         """
         return text.replace(' ', '_')
+
 
     def title_graph(self, text) -> str:
         """
@@ -100,8 +108,8 @@ class Pareto:
         self,
         title: str = 'Diagrama de Pareto',
         figsize: tuple = (12, 6),
-        xlabel: str = None,
-        hline: bool = False,
+        xlabel:str = None,
+        hline:bool =False,
         save: bool = False,
     ) -> None:
         """
@@ -110,7 +118,7 @@ class Pareto:
         Args:
             title (str, opcional): Título do diagrama. Padrão: "Diagrama de Pareto".
             figsize (tuple, opcional): Tamanho da figura em polegadas. Padrão: (12, 6).
-            hline (bool) Linha dos 80 procentos Padrão:False,
+            hline (bool) Linha dos 80% Padrão:False,
             xlabel (str) Texto do exio x do gráfico Padrão: None
             save (bool, opcional): Indica se o diagrama deve ser salvo em um arquivo. Padrão: False.
         """
@@ -127,14 +135,14 @@ class Pareto:
         sns.lineplot(
             data=data,
             x=xlabel_,
-            y='precentual_cum',
+            y='percentual_cum',
             color='tomato',
             marker='o',
             markersize=8,
             ax=ax2,
         )
         ax1.set_ylabel('Frequência')
-
+        
         ax2.set_ylabel('Percentual acumulado')
         plt.title(title.upper())
 
@@ -142,10 +150,10 @@ class Pareto:
 
         [tick.set_rotation(45) for tick in ax1.get_xticklabels()]
 
-        if not xlabel:
+        if  not xlabel: 
             ax1.set_xlabel(self.label)
         else:
-            ax1.set_xlabel(xlabel)
+             ax1.set_xlabel(xlabel)
 
         if hline:
             plt.axhline(0.8, c='k', ls='-.', linewidth=1.5)
@@ -157,5 +165,7 @@ class Pareto:
                 dpi=500,
                 bbox_inches='tight',
             )
+
+
 
         return plt.show()
